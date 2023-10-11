@@ -15,7 +15,7 @@ setup(
     include_package_data=True,
     url='https://www.qanty.com',
     project_urls={
-        "Source": "https://github.com/grupodyd/python-qanty"
+        "Source": "https://github.com/grupodyd/python-qanty",
         "Tracker": "https://github.com/grupodyd/python-qanty/issues",
     }
     keywords='qanty',
