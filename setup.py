@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-__version__ = "0.3.77"
+__version__ = "0.0.2"
 
 setup(
     name='qanty',
