@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 setup(
     name='qanty',
@@ -13,7 +13,11 @@ setup(
     author_email='jfelipe@grupodyd.com',
     packages=find_packages(exclude=["tests", "tests.*"]),
     include_package_data=True,
-    url='https://github.com/grupodyd/python-qanty',
+    url='https://www.qanty.com',
+    project_urls={
+        "Source": "https://github.com/grupodyd/python-qanty"
+        "Tracker": "https://github.com/grupodyd/python-qanty/issues",
+    }
     keywords='qanty',
     python_requires=">=3.8.0",
     install_requires=[
