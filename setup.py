@@ -21,7 +21,7 @@ setup(
     keywords='qanty',
     python_requires=">=3.8.0",
     install_requires=[
-          "requests >= 2.0.0",
+          "httpx[http2] >= 0.23.0",
       ],
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
