@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='qanty',
-    version='0.0.1',
+    version='0.0.2',
     description="Qanty API Client",
     long_description=open("README.md").read().strip(),
     long_description_content_type="text/markdown",
