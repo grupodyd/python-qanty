@@ -1,16 +1,18 @@
 from setuptools import setup, find_packages
 
+__version__ = "0.3.77"
+
 setup(
     name='qanty',
-    version='0.0.2',
+    version=__version__,
     description="Qanty API Client",
     long_description=open("README.md").read().strip(),
     long_description_content_type="text/markdown",
     license='MIT',
     author="Juan F. Duque",
     author_email='jfelipe@grupodyd.com',
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
+    packages=find_packages(exclude=["tests", "tests.*"]),
+    include_package_data=True,
     url='https://github.com/grupodyd/python-qanty',
     keywords='qanty',
     python_requires=">=3.8.0",
