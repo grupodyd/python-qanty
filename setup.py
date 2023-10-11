@@ -17,7 +17,7 @@ setup(
     project_urls={
         "Source": "https://github.com/grupodyd/python-qanty",
         "Tracker": "https://github.com/grupodyd/python-qanty/issues",
-    }
+    },
     keywords='qanty',
     python_requires=">=3.8.0",
     install_requires=[
