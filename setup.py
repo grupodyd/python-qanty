@@ -3,26 +3,27 @@ from setuptools import setup, find_packages
 __version__ = "0.0.4"
 
 setup(
-    name='qanty',
+    name="qanty",
     version=__version__,
     description="Qanty API Client",
     long_description=open("README.md").read().strip(),
     long_description_content_type="text/markdown",
-    license='MIT',
+    license="MIT",
     author="Juan F. Duque",
-    author_email='jfelipe@grupodyd.com',
+    author_email="jfelipe@grupodyd.com",
     packages=find_packages(exclude=["tests", "tests.*"]),
     include_package_data=True,
-    url='https://www.qanty.com',
+    url="https://www.qanty.com",
     project_urls={
         "Source": "https://github.com/grupodyd/python-qanty",
         "Tracker": "https://github.com/grupodyd/python-qanty/issues",
     },
-    keywords='qanty',
+    keywords="qanty",
     python_requires=">=3.8.0",
     install_requires=[
-          "httpx[http2] >= 0.23.0",
-      ],
+        "httpx[http2] >= 0.24.0, < 1",
+        "pydantic >= 2, < 3",
+    ],
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Environment :: Console",
@@ -39,5 +40,5 @@ setup(
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: Implementation :: CPython",
         "Topic :: Software Development :: Libraries :: Python Modules",
-      ],
+    ],
 )

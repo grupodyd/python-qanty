@@ -1,0 +1,6 @@
+[tool.black]
+line-length = 130
+
+[tool.ruff]
+line-length = 130
+ignore = ["E402"]
