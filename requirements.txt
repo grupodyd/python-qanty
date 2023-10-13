@@ -1,5 +1,2 @@
-bumpversion
 httpx[http2]>=0.24.0, <1
 pydantic>=2.0.0, <3
-pytest
-pytest-cov
