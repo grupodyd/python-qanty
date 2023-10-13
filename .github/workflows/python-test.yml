@@ -30,6 +30,9 @@ jobs:
         python -m pip install pytest-cov
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with pytest
+      with:
+        AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+        COMPANY_ID: ${{ secrets.COMPANY_ID }}
       env:
         AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
         COMPANY_ID: ${{ secrets.COMPANY_ID }}
