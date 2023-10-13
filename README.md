@@ -31,11 +31,9 @@ Try listing your company branches. Save the following code sample to your comput
 from qanty import Qanty
 
 # Your Auth Token
-auth_token  = "your_auth_token"
+client = Qanty(auth_token="your_auth_token", company_id="your_company_id")
 
-client = Qanty(auth_token)
-
-branches = client.get_branches(company_id="MyCompanyID")
+branches = client.get_branches()
 for branch in branches:
     print(f"Branch ID {branch.id}, name {branch.name}")
 ```
