@@ -15,8 +15,8 @@ class Qanty:
     __url = "https://qanty.com/api"
 
     def __init__(self, auth_token: str, company_id: str) -> None:
-        self.client = httpx.Client(http2=True)
-        self.client.auth = (auth_token, "")
+        headers = {"Authorization": auth_token}
+        self.client = httpx.Client(http2=True, headers=headers)
         self.company_id = company_id
 
     def __del__(self) -> None:

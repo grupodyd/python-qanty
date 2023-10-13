@@ -1,11 +1,12 @@
 # -*- coding: UTF-8 -*-
+import os
 
 import pytest
 
 from qanty import Qanty
 
-TEST_AUTH_TOKEN = "test_auth_token"
-TEST_COMPANY_ID = "test_company_id"
+TEST_AUTH_TOKEN = os.environ.get("AUTH_TOKEN")
+TEST_COMPANY_ID = os.environ.get("COMPANY_ID")
 
 
 @pytest.fixture(scope="session")
