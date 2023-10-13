@@ -32,5 +32,6 @@ jobs:
     - name: Test with pytest
       env:
         AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+        COMPANY_ID: ${{ vars.COMPANY_ID }}
       run: |
         python -m pytest --cov --disable-warnings
