@@ -5,6 +5,7 @@ import pytest
 
 from qanty import Qanty
 
+
 TEST_AUTH_TOKEN = os.environ.get("AUTH_TOKEN")
 TEST_COMPANY_ID = os.environ.get("COMPANY_ID")
 
