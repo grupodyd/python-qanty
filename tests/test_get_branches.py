@@ -19,6 +19,6 @@ def test_get_deleted_branches(qanty):
             assert isinstance(branch, models.Branch)
 
 
-# def test_get_branches_with_filters(qanty):
-#     response = qanty.get_branches(filters={"branch_groups": ["group1", "group2"]})
-#     assert isinstance(response, list)
+def test_get_branches_with_filters(qanty):
+    response = qanty.get_branches(filters={"branch_groups": ["group1", "group2"]})
+    assert isinstance(response, list)
