@@ -4,6 +4,10 @@ import qanty.common.models as models
 
 
 def test_get_branches(qanty):
+
+    assert isinstance(qanty.company_id, str)
+    assert isinstance(qanty.client.headers.get("Authorization"), str)
+
     response = qanty.get_branches()
     assert isinstance(response, list)
 
