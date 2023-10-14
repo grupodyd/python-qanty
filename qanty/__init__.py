@@ -40,22 +40,22 @@ class Qanty:
             return None
 
         sites = data.get("sites", [])
-        branches: List[models.Branch] = [models.Branch.model_validate(item) for item in sites]
-        return branches
+        output: List[models.Branch] = [models.Branch.model_validate(item) for item in sites]
+        return output
 
     def get_lines(
-        self, branch_id: Optional[str] = None, custom_branch_id: Optional[str] = None, get_deleted: Optional[bool] = False
+        self, branch_id: str, custom_branch_id: Optional[str] = None, get_deleted: Optional[bool] = False
     ) -> Optional[List[models.Line]]:
         """
-        Retrieves a list of lines from the specified branch or custom branch.
+        Retrieves a list of lines for a given branch ID.
 
         Args:
-            branch_id (Optional[str]): The ID of the branch to retrieve lines from. Defaults to None.
-            custom_branch_id (Optional[str]): The ID of the custom branch to retrieve lines from. Defaults to None.
-            get_deleted (Optional[bool]): Whether to include deleted lines in the results. Defaults to False.
+            branch_id (str): The ID of the branch to retrieve lines for.
+            custom_branch_id (Optional[str], optional): The custom ID of the branch to retrieve lines for. Defaults to None.
+            get_deleted (Optional[bool], optional): Whether to include deleted lines in the response. Defaults to False.
 
         Returns:
-            Optional[List[models.Line]]: A list of Line objects representing the retrieved lines, or None if an error occurred.
+            Optional[List[models.Line]]: A list of Line objects representing the lines in the branch, or None if an error occurred.
         """
         url = f"{self.__url}/branches/get_lines"
         try:
@@ -68,12 +68,55 @@ class Qanty:
                     "get_deleted": get_deleted,
                 },
             )
-            response.raise_for_status()
             data = response.json()
         except httpx.HTTPStatusError as exc:
             logger.error(exc)
             return None
 
+        if data.get("success") is False:
+            logger.error(f"Error retrieving lines for branch {branch_id}: {data.get('msg')}")
+            return None
+
         lines = data.get("lines", [])
-        lines: List[models.Line] = [models.Line.model_validate(item) for item in lines]
-        return lines
+        output: List[models.Line] = [models.Line.model_validate(item) for item in lines]
+        return output
+
+    def list_day_schedule(
+        self, branch_id: str, line_id: str, day: str, custom_branch_id: Optional[str] = None
+    ) -> Optional[List[models.DaySchedule]]:
+        """
+        Retrieve the day schedule for a given branch and line on a specific day.
+
+        Args:
+            branch_id (str): The ID of the branch to retrieve the schedule for.
+            line_id (str): The ID of the line to retrieve the schedule for.
+            day (str): The day to retrieve the schedule for, in the format "YYYY-MM-DD".
+            custom_branch_id (Optional[str], optional): The ID of a custom branch to retrieve the schedule for. Defaults to None.
+
+        Returns:
+            Optional[List[models.DaySchedule]]: A list of DaySchedule objects representing the appointments scheduled for the given branch and line on the given day, or None if an error occurred.
+        """
+        url = f"{self.__url}/appointments/list_day_schedule"
+        try:
+            response = self.client.post(
+                url,
+                json={
+                    "company_id": self.company_id,
+                    "branch_id": branch_id,
+                    "line_id": line_id,
+                    "day": day,
+                    "custom_branch_id": custom_branch_id,
+                },
+            )
+            data = response.json()
+        except httpx.HTTPStatusError as exc:
+            logger.error(exc)
+            return None
+
+        if data.get("success") is False:
+            logger.error(f"Error retrieving day schedule for branch '{branch_id}' and line '{line_id}': {data.get('msg')}")
+            return None
+
+        appointments = data.get("appointments", [])
+        output: List[models.DaySchedule] = [models.DaySchedule.model_validate(item) for item in appointments]
+        return output

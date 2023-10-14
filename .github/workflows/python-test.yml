@@ -34,4 +34,4 @@ jobs:
         AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
         COMPANY_ID: ${{ vars.COMPANY_ID }}
       run: |
-        python -m pytest --cov --disable-warnings
+        python -m pytest --verbosity 1 --cov --cov-report term-missing --disable-warnings

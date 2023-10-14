@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import pydantic
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 
 class BranchLocation(pydantic.BaseModel):
@@ -52,14 +52,55 @@ class LineMetrics(pydantic.BaseModel):
     model_config = {"frozen": True}
 
 
+class AppointmentSettingsOperationRange(pydantic.BaseModel):
+    howManyDays: int
+    daysAhead: int
+
+
+# TODO: This is incomplete
+class AppointmentSettingsSetCalendars(pydantic.BaseModel):
+    pass
+
+
+class LineAppointmentSettings(pydantic.BaseModel):
+    operationRange: AppointmentSettingsOperationRange
+    setCalendars: List[AppointmentSettingsSetCalendars] = []
+    cancelWindow: int
+    sets: Dict[str, Any]
+    enabled: bool
+
+
 class Line(pydantic.BaseModel):
     id: str
     name: str
     chars: str
     waiting_tickets: int
-    last_event: int
     enabled: bool
     deleted: bool
     metrics: LineMetrics
+    appointment_settings: LineAppointmentSettings
+    color: Optional[str]
+
+    model_config = {"frozen": True}
+
+
+class Slot(pydantic.BaseModel):
+    appointment_slot_idx: int
+    appointment_set: str
+    duration: int
+    status: str
+    name: str
+
+
+class SlotCollection(pydantic.BaseModel):
+    slots: Dict[str, Slot]
+
+
+class TimeSlots(pydantic.BaseModel):
+    slots: Dict[str, SlotCollection]
+
+
+class DaySchedule(pydantic.BaseModel):
+    date_time: TimeSlots
 
     model_config = {"frozen": True}
