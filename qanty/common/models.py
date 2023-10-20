@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
 
+import datetime
+
 import pydantic
 from typing import Any, Dict, List, Optional
 
@@ -84,23 +86,20 @@ class Line(pydantic.BaseModel):
     model_config = {"frozen": True}
 
 
-class Slot(pydantic.BaseModel):
+class AppointmentSlot(pydantic.BaseModel):
+    index: str
+    indexInsideSet: int
+    duration: int
     appointment_slot_idx: int
     appointment_set: str
-    duration: int
+    attending_slot: str
+    serve_as_group: bool
     status: str
     name: str
 
 
-class SlotCollection(pydantic.BaseModel):
-    slots: Dict[str, Slot]
-
-
-class TimeSlots(pydantic.BaseModel):
-    slots: Dict[str, SlotCollection]
-
-
-class DaySchedule(pydantic.BaseModel):
-    date_time: TimeSlots
+class AppointmentDaySchedule(pydantic.BaseModel):
+    date_time: datetime.datetime
+    slots: List[AppointmentSlot]
 
     model_config = {"frozen": True}

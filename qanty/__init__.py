@@ -3,6 +3,7 @@ import logging
 from typing import List, Optional
 
 import httpx
+from dateutil.parser import parse
 
 import qanty.common.models as models
 
@@ -81,9 +82,9 @@ class Qanty:
         output: List[models.Line] = [models.Line.model_validate(item) for item in lines]
         return output
 
-    def list_day_schedule(
+    def list_day_appointments_schedule(
         self, branch_id: str, line_id: str, day: str, custom_branch_id: Optional[str] = None
-    ) -> Optional[List[models.DaySchedule]]:
+    ) -> Optional[List[models.AppointmentDaySchedule]]:
         """
         Retrieve the day schedule for a given branch and line on a specific day.
 
@@ -117,6 +118,22 @@ class Qanty:
             logger.error(f"Error retrieving day schedule for branch '{branch_id}' and line '{line_id}': {data.get('msg')}")
             return None
 
-        appointments = data.get("appointments", [])
-        output: List[models.DaySchedule] = [models.DaySchedule.model_validate(item) for item in appointments]
+        appointments = data.get("appointments", {})
+
+        output: List[models.AppointmentDaySchedule] = []
+        for date, slots in appointments.items():
+            entry = {"date_time": parse(date), "slots": []}
+            for index, details in slots.items():
+                entry["slots"].append({"index": index, **details})
+                try:
+                    output.append(models.AppointmentDaySchedule.model_validate(entry))
+                except Exception:
+                    logger.error(f"Error validating appointment day schedule entry: {entry}")
+                    continue
+
         return output
+
+    def list_day_orders_schedule(
+        self, branch_id: str, line_id: str, day: str, custom_branch_id: Optional[str] = None
+    ) -> Optional[List[models.AppointmentDaySchedule]]:
+        pass
