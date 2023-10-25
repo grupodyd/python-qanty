@@ -2,7 +2,7 @@
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![pypi](https://badge.fury.io/py/qanty.svg)](https://pypi.org/project/qanty/)
 [![PyPI](https://img.shields.io/pypi/pyversions/qanty.svg)](https://pypi.python.org/pypi/qanty)
-# python-qanty
+# qanty
 Python package for integration of Qanty in other applications
 
 ### Supported Python Versions
