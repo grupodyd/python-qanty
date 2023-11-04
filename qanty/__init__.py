@@ -6,6 +6,7 @@ import httpx
 from dateutil.parser import parse
 
 import qanty.common.models as models
+import qanty.exceptions
 
 
 logging.basicConfig(level=logging.WARNING)
@@ -137,3 +138,143 @@ class Qanty:
         self, branch_id: str, line_id: str, day: str, custom_branch_id: Optional[str] = None
     ) -> Optional[List[models.AppointmentDaySchedule]]:
         pass
+
+    def make_one_appointment(
+        self,
+        branch_id: str,
+        custom_branch_id: str,
+        user_id: str,
+        line_id: str,
+        date: str,
+        mobile_id: Optional[str] = None,
+        customer_doc_type: Optional[str] = None,
+        customer_doc_id: Optional[str] = None,
+        customer_name: Optional[str] = None,
+        customer_last_name: Optional[str] = None,
+        debug: bool = False,
+    ) -> Optional[models.AssignedAppointment]:
+        """
+        Makes an appointment for a customer.
+
+        Args:
+            branch_id (str): The ID of the branch where the appointment will be made.
+            custom_branch_id (str): The custom ID of the branch where the appointment will be made.
+            user_id (str): The ID of the user that is making the request.
+            line_id (str): The ID of the line where the appointment will be made.
+            date (str): The date of the appointment in the format 'YYYY-MM-DD'.
+            mobile_id (str, optional): The ID of the mobile device. Defaults to None.
+            customer_doc_type (str, optional): The type of document of the customer. Defaults to None.
+            customer_doc_id (str, optional): The ID of the document of the customer. Defaults to None.
+            customer_name (str, optional): The name of the customer. Defaults to None.
+            customer_last_name (str, optional): The last name of the customer. Defaults to None.
+            debug (bool, optional): Whether to enable debug mode. Defaults to False.
+
+        Returns:
+            Optional[models.AssignedAppointment]: An AssignedAppointment object if the appointment was made successfully, None otherwise.
+        """
+
+        url = f"{self.__url}/appointments/make_one"
+        try:
+            response = self.client.post(
+                url,
+                json={
+                    "company_id": self.company_id,
+                    "branch_id": branch_id,
+                    "custom_branch_id": custom_branch_id,
+                    "user_id": user_id,
+                    "line_id": line_id,
+                    "date": date,
+                    "mobile_id": mobile_id,
+                    "customer_doc_type": customer_doc_type,
+                    "customer_doc_id": customer_doc_id,
+                    "customer_name": customer_name,
+                    "customer_last_name": customer_last_name,
+                    "debug": debug,
+                },
+            )
+            data = response.json()
+        except httpx.HTTPStatusError as exc:
+            logger.error(exc)
+            return None
+
+        if data.get("success") is False:
+            if data.get("code") == "INVALID_USER_IDENTIFIER":
+                raise qanty.exceptions.InvalidUserIdentifier(user_id=user_id, branch_id=branch_id, line_id=line_id)
+
+            if data.get("code") == "USER_NOT_FOUND":
+                raise qanty.exceptions.UserNotFound(user_id=user_id)
+
+            raise qanty.exceptions.QantyError
+
+        try:
+            assigned_appointment = data.get("assigned_appointment", {})
+            return models.AssignedAppointment.model_validate(assigned_appointment)
+        except Exception as exc:
+            logger.error(f"Error validating assigned appointment: {exc}")
+            return None
+
+    def create_user(
+        self,
+        user_id: str,
+        email: str,
+        doc_id: str,
+        name: str,
+        role_id: str,
+        branches: List[str],
+        password: Optional[str] = None,
+        doc_type: Optional[str] = None,
+        doc_type_id: Optional[str] = None,
+        last_name: Optional[str] = None,
+        debug: Optional[bool] = False,
+    ) -> Optional[str]:
+        """
+        Creates a new user
+
+        Args:
+            user_id (str): The user ID.
+            email (str): The user's email address.
+            doc_id (str): The user's document ID.
+            name (str): The user's name.
+            role_id (str): The user's role ID.
+            branches (List[str]): A list of branches the user has access to.
+            password (Optional[str], optional): The user's password. Defaults to None.
+            doc_type (Optional[str], optional): The user's document type. Defaults to None.
+            doc_type_id (Optional[str], optional): The user's document type ID. Defaults to None.
+            last_name (Optional[str], optional): The user's last name. Defaults to None.
+            debug (Optional[bool], optional): Whether to enable debug mode. Defaults to False.
+
+        Returns:
+            Optional[str]: The ID of the newly created user, or None if the user could not be created.
+        """
+
+        url = f"{self.__url}/create_user"
+        try:
+            response = self.client.post(
+                url,
+                json={
+                    "company_id": self.company_id,
+                    "user_id": user_id,
+                    "email": email,
+                    "doc_id": doc_id,
+                    "name": name,
+                    "role_id": role_id,
+                    "branches": branches,
+                    "password": password,
+                    "doc_type": doc_type,
+                    "doc_type_id": doc_type_id,
+                    "last_name": last_name,
+                    "debug": debug,
+                },
+            )
+            data = response.json()
+        except httpx.HTTPStatusError as exc:
+            logger.error(exc)
+            return None
+
+        if data.get("success") is False:
+            if data.get("code") == "USER_NOT_FOUND":
+                raise qanty.exceptions.UserNotFound(user_id=user_id)
+
+            raise qanty.exceptions.QantyError
+
+        return data.get("id")

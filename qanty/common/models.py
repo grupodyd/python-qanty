@@ -103,3 +103,16 @@ class AppointmentDaySchedule(pydantic.BaseModel):
     slots: List[AppointmentSlot]
 
     model_config = {"frozen": True}
+
+
+class AssignedAppointment(pydantic.BaseModel):
+    name: str
+    status: str
+    issue_date: int
+    appointment_set: str
+    appointment_slot_idx: int
+    duration: int
+    attending_slot: str
+    video_call_id: str
+
+    model_config = {"frozen": True}
