@@ -83,6 +83,104 @@ class Qanty:
         output: List[models.Line] = [models.Line.model_validate(item) for item in lines]
         return output
 
+    def get_users(
+        self,
+        user_id: str,
+        filters: Optional[List[str]] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        get_deleted: Optional[bool] = False,
+    ) -> Optional[List[models.User]]:
+        """
+        Get a list of users based on the provided filters.
+
+        Args:
+            user_id (str): The user identifier.
+            filters (Optional[List[str]]): A list of filters to apply to the user list.
+            start_date (Optional[str]): The start date to filter users by.
+            end_date (Optional[str]): The end date to filter users by.
+            get_deleted (Optional[bool]): Whether or not to include deleted users in the list.
+
+        Returns:
+            Optional[List[models.User]]: A list of User objects that match the provided filters.
+        """
+        url = f"{self.__url}/get_users"
+        try:
+            response = self.client.post(
+                url,
+                json={
+                    "company_id": self.company_id,
+                    "user_id": user_id,
+                    "filter": filters,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "get_deleted": get_deleted,
+                },
+            )
+            data = response.json()
+        except httpx.HTTPStatusError as exc:
+            logger.error(exc)
+            return None
+
+        if data.get("success") is False:
+            if data.get("code") == "INVALID_USER_IDENTIFIER":
+                raise qanty.exceptions.InvalidUserIdentifier(user_id=user_id)
+
+            if data.get("code") == "USER_NOT_FOUND":
+                raise qanty.exceptions.UserNotFound(user_id=user_id)
+
+            raise qanty.exceptions.QantyError
+
+        return [models.User.model_validate(item) for item in data.get("users", [])]
+
+    def get_user(
+        self,
+        user_id: str,
+        target_user_id: Optional[str] = None,
+        target_email: Optional[str] = None,
+        get_deleted: Optional[bool] = False,
+    ) -> Optional[models.User]:
+        """
+        Retrieves a user by ID.
+
+        Args:
+            user_id (str): The ID of the user to retrieve.
+
+        Returns:
+            Optional[models.User]: A User object representing the user, or None if an error occurred.
+        """
+        url = f"{self.__url}/get_user"
+        try:
+            response = self.client.post(
+                url,
+                json={
+                    "company_id": self.company_id,
+                    "user_id": user_id,
+                    "target_user_id": target_user_id,
+                    "target_email": target_email,
+                    "get_deleted": get_deleted,
+                },
+            )
+            data = response.json()
+        except httpx.HTTPStatusError as exc:
+            logger.error(exc)
+            return None
+
+        if data.get("success") is False:
+            if data.get("code") == "INVALID_USER_IDENTIFIER":
+                raise qanty.exceptions.InvalidUserIdentifier(user_id=user_id)
+
+            if data.get("code") == "USER_NOT_FOUND":
+                raise qanty.exceptions.UserNotFound(user_id=user_id)
+
+            raise qanty.exceptions.QantyError
+
+        try:
+            return models.User.model_validate(data.get("user", {}))
+        except Exception as exc:
+            logger.error(f"Error validating user: {exc}")
+            return None
+
     def list_day_appointments_schedule(
         self, branch_id: str, line_id: str, day: str, custom_branch_id: Optional[str] = None
     ) -> Optional[List[models.AppointmentDaySchedule]]:

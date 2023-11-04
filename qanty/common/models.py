@@ -116,3 +116,16 @@ class AssignedAppointment(pydantic.BaseModel):
     video_call_id: str
 
     model_config = {"frozen": True}
+
+
+class User(pydantic.BaseModel):
+    id: str
+    email: str
+    doc_id: str
+    name: str
+    role_id: str
+    branches: List[str]
+    enabled: bool
+    deleted: bool
+
+    model_config = {"frozen": True}
