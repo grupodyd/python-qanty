@@ -21,7 +21,7 @@ def test_make_one_appointment(qanty):
 
                 assigned_appointment = qanty.make_one_appointment(
                     branch_id=branch.id,
-                    custom_branch_id = getattr(branch, 'custom_id', None)
+                    custom_branch_id=getattr(branch, "custom_id", None),
                     user_id="",
                     line_id=line.id,
                     date=datetime.datetime.now().strftime("%Y-%m-%d"),
@@ -36,6 +36,5 @@ def test_make_one_appointment(qanty):
                 assert isinstance(assigned_appointment, models.AssignedAppointment)
 
                 break
-            
+
             break
- 
