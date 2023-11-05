@@ -76,8 +76,10 @@ class Qanty:
             return None
 
         if data.get("success") is False:
-            logger.error(f"Error retrieving lines for branch {branch_id}: {data.get('msg')}")
-            return None
+            if data.get("code") == "BRANCH_NOT_FOUND":
+                raise qanty.exceptions.BranchNotFound(branch_id=branch_id)
+
+            raise qanty.exceptions.QantyError
 
         lines = data.get("lines", [])
         output: List[models.Line] = [models.Line.model_validate(item) for item in lines]
@@ -370,9 +372,49 @@ class Qanty:
             return None
 
         if data.get("success") is False:
+            if data.get("code") == "INVALID_USER_IDENTIFIER":
+                raise qanty.exceptions.InvalidUserIdentifier(user_id=user_id)
+
             if data.get("code") == "USER_NOT_FOUND":
                 raise qanty.exceptions.UserNotFound(user_id=user_id)
 
             raise qanty.exceptions.QantyError
 
         return data.get("id")
+
+    def get_roles(
+        self,
+        user_id: str,
+        filters: Optional[List[str]] = None,
+        get_deleted: Optional[bool] = False,
+    ) -> Optional[List[models.UserRole]]:
+        url = f"{self.__url}/get_roles"
+        try:
+            response = self.client.post(
+                url,
+                json={
+                    "company_id": self.company_id,
+                    "user_id": user_id,
+                    "filters": filters,
+                    "get_deleted": get_deleted,
+                },
+            )
+            data = response.json()
+        except httpx.HTTPStatusError as exc:
+            logger.error(exc)
+            return None
+
+        if data.get("success") is False:
+            raise qanty.exceptions.QantyError
+
+        roles = data.get("roles", [])
+
+        output: List[models.UserRole] = []
+        for role in roles:
+            try:
+                output.append(models.UserRole.model_validate(role))
+            except Exception:
+                logger.error(f"Error validating user role: {role}")
+                continue
+
+        return output

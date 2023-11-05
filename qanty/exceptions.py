@@ -14,5 +14,9 @@ class InvalidUserIdentifier(QantyError):
     fmt = "Invalid user identifier: '{user_id}'"
 
 
+class BranchNotFound(QantyError):
+    fmt = "Branch '{branch_id}' not found"
+
+
 class UserNotFound(QantyError):
     fmt = "User '{user_id}' not found"

@@ -118,14 +118,30 @@ class AssignedAppointment(pydantic.BaseModel):
     model_config = {"frozen": True}
 
 
+class UserRole(pydantic.BaseModel):
+    id: str
+    name: str
+    roleGroup: str
+    enabled: bool
+    hidden: bool
+    deleted: bool
+    rules: Dict[str, Any]
+
+    model_config = {"frozen": True}
+
+
 class User(pydantic.BaseModel):
     id: str
-    email: str
-    doc_id: str
     name: str
-    role_id: str
-    branches: List[str]
+    docId: str
+    email: str
     enabled: bool
+    hidden: bool
     deleted: bool
+    role: UserRole
+    lastName: Optional[str]
+    docType: Optional[str]
+    docTypeId: Optional[str]
+    branches: Optional[List[str]]
 
     model_config = {"frozen": True}

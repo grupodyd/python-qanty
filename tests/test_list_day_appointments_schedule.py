@@ -27,5 +27,5 @@ def test_list_day_appointments_schedule(qanty):
                 assert isinstance(appointments, list)
 
                 break
-            
+
             break
