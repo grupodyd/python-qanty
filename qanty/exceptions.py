@@ -20,3 +20,7 @@ class BranchNotFound(QantyError):
 
 class UserNotFound(QantyError):
     fmt = "User '{user_id}' not found"
+
+
+class UserAlreadyExists(QantyError):
+    fmt = "User '{user_id}' already exists"

@@ -4,24 +4,24 @@ import random
 import qanty.common.models as models
 
 
-def test_get_branch_lines(qanty):
-    branches = qanty.get_branches()
+def test_get_branch_lines(qanty_client):
+    branches = qanty_client.get_branches()
     assert isinstance(branches, list)
     if len(branches) > 0:
         random_branch = random.choice(branches)
-        lines = qanty.get_lines(branch_id=random_branch.id)
+        lines = qanty_client.get_lines(branch_id=random_branch.id)
         assert isinstance(lines, list)
         if len(lines) > 0:
             for line in lines:
                 assert isinstance(line, models.Line)
 
 
-def test_get_deleted_lines(qanty):
-    branches = qanty.get_branches()
+def test_get_deleted_lines(qanty_client):
+    branches = qanty_client.get_branches()
     assert isinstance(branches, list)
     if len(branches) > 0:
         random_branch = random.choice(branches)
-        lines = qanty.get_lines(branch_id=random_branch.id, get_deleted=True)
+        lines = qanty_client.get_lines(branch_id=random_branch.id, get_deleted=True)
         assert isinstance(lines, list)
         if len(lines) > 0:
             for line in lines:

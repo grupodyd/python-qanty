@@ -9,10 +9,10 @@ Python package for integration of Qanty in other applications
 
 This library supports the following Python implementations:
 
-- Python 3.8
 - Python 3.9
 - Python 3.10
 - Python 3.11
+- Python 3.12
 
 ## Installation
 
@@ -28,12 +28,12 @@ pip3 install qanty
 Try listing your company branches. Save the following code sample to your computer with a text editor. Be sure to update the `auth_token`, and `company_id` variables.
 
 ```python
-from qanty import Qanty
+import qanty
 
 # Your Auth Token
-client = Qanty(auth_token="your_auth_token", company_id="your_company_id")
+client = qanty.Client(auth_token="your_auth_token", company_id="your_company_id")
 
 branches = client.get_branches()
 for branch in branches:
-    print(f"Branch ID {branch.id}, name {branch.name}")
+    print(f"Branch ID: '{branch.id}', name: '{branch.name}'")
 ```

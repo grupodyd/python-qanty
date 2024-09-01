@@ -3,23 +3,22 @@ import os
 
 import pytest
 
-from qanty import Qanty
-from qanty.common.models import UserRole, User
-
+import qanty
+from qanty.common.models import User, UserRole
 
 TEST_AUTH_TOKEN = os.environ.get("AUTH_TOKEN")
 TEST_COMPANY_ID = os.environ.get("COMPANY_ID")
 
 
 @pytest.fixture(scope="session")
-def qanty():
+def qanty_client():
     """
-    Fixture that returns an instance of the Qanty class with a given auth token.
+    Fixture for creating a Qanty client.
 
     Returns:
-        Qanty: An instance of the Qanty class.
+        qanty.Client: A Qanty client instance with the specified authentication token and company ID.
     """
-    return Qanty(auth_token=TEST_AUTH_TOKEN, company_id=TEST_COMPANY_ID)
+    return qanty.Client(auth_token=TEST_AUTH_TOKEN, company_id=TEST_COMPANY_ID)
 
 
 @pytest.fixture(scope="session")
@@ -37,7 +36,7 @@ def user():
         enabled=True,
         hidden=False,
         deleted=False,
-        rules=[],
+        rules={},
     )
 
     return User(
@@ -45,9 +44,12 @@ def user():
         name="Test User",
         lastName="",
         docId="",
+        docType="",
+        docTypeId="",
         email="test_email",
         enabled=True,
         hidden=False,
         deleted=False,
         role=role,
+        branches=[],
     )

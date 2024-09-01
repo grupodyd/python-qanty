@@ -1,27 +1,27 @@
 # -*- coding: UTF-8 -*-
 
-import qanty.common.models as models
+from qanty.common.models import Branch
 
 
-def test_get_branches(qanty):
-    response = qanty.get_branches()
+def test_get_branches(qanty_client):
+    response = qanty_client.get_branches()
     assert isinstance(response, list)
     if len(response) > 0:
         for branch in response:
-            assert isinstance(branch, models.Branch)
+            assert isinstance(branch, Branch)
 
 
-def test_get_deleted_branches(qanty):
-    response = qanty.get_branches(get_deleted=True)
+def test_get_deleted_branches(qanty_client):
+    response = qanty_client.get_branches(get_deleted=True)
     assert isinstance(response, list)
     if len(response) > 0:
         for branch in response:
-            assert isinstance(branch, models.Branch)
+            assert isinstance(branch, Branch)
 
 
-def test_get_branches_with_filters(qanty):
-    response = qanty.get_branches(filters={"branch_groups": ["group1", "group2"]})
+def test_get_branches_with_filters(qanty_client):
+    response = qanty_client.get_branches(filters={"branch_groups": ["group1", "group2"]})
     assert isinstance(response, list)
     if len(response) > 0:
         for branch in response:
-            assert isinstance(branch, models.Branch)
+            assert isinstance(branch, Branch)
