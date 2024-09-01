@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 setup(
     name="qanty",
@@ -19,7 +19,7 @@ setup(
         "Tracker": "https://github.com/grupodyd/python-qanty/issues",
     },
     keywords="qanty",
-    python_requires=">=3.8.0",
+    python_requires=">=3.10.0",
     install_requires=[
         "httpx[http2] >= 0.24.0, < 1",
         "pydantic >= 2, < 3",
@@ -34,7 +34,6 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
