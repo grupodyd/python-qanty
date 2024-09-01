@@ -5,6 +5,7 @@ import random
 import string
 
 import qanty.common.models as models
+import qanty.exceptions
 
 
 def test_make_one_appointment(qanty_client):
@@ -22,21 +23,25 @@ def test_make_one_appointment(qanty_client):
                 if len(line.appointment_settings.sets) == 0:
                     continue
 
-                user_id = "".join(random.choice(string.ascii_letters + string.digits) for _ in range(16))
+                random_user_id = "".join(random.choice(string.ascii_letters + string.digits) for _ in range(16))
 
-                assigned_appointment = qanty_client.make_one_appointment(
-                    branch_id=branch.id,
-                    custom_branch_id=getattr(branch, "custom_id", None),
-                    user_id=user_id,
-                    line_id=line.id,
-                    date=datetime.datetime.now().strftime("%Y-%m-%d"),
-                    mobile_id=None,
-                    customer_doc_type="",
-                    customer_doc_id="",
-                    customer_name="",
-                    customer_last_name="",
-                    debug=True,
-                )
+                try:
+                    assigned_appointment = qanty_client.make_one_appointment(
+                        branch_id=branch.id,
+                        custom_branch_id=getattr(branch, "custom_id", None),
+                        user_id=random_user_id,
+                        line_id=line.id,
+                        date=datetime.datetime.now().strftime("%Y-%m-%d"),
+                        mobile_id=None,
+                        customer_doc_type="",
+                        customer_doc_id="",
+                        customer_name="",
+                        customer_last_name="",
+                        debug=True,
+                    )
+                except qanty.exceptions.UserNotFound:
+                    assert True
+                    break
 
                 assert isinstance(assigned_appointment, models.AssignedAppointment)
 

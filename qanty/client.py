@@ -382,8 +382,8 @@ class Client:
                 case "INVALID_USER_IDENTIFIER":
                     raise exceptions.InvalidUserIdentifier(user_id=user_id)
 
-                case "USER_ALREADY_EXISTS":
-                    raise exceptions.UserAlreadyExists(user_id=user_id)
+                case "USER_NOT_FOUND":
+                    raise exceptions.UserNotFound(user_id=user_id)
 
                 case _:
                     logger.error(f"Error creating user '{user_id}': {data.get('msg')}")
