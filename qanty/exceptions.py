@@ -10,6 +10,16 @@ class QantyError(Exception):
         self.kwargs = kwargs
 
 
+class ApiError(QantyError):
+    fmt = "Qanty API error {code}: {msg}"
+
+    def __init__(self, code: str, msg: str, payload=None):
+        super().__init__(code=code, msg=msg)
+        self.code = code
+        self.msg = msg
+        self.payload = payload
+
+
 class InvalidUserIdentifier(QantyError):
     fmt = "Invalid user identifier: '{user_id}'"
 

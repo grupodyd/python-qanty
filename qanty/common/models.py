@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import datetime
+from urllib.parse import urlencode, urljoin
 
 import pydantic
 from typing import Any, Dict, List, Optional
@@ -103,6 +104,35 @@ class AppointmentDaySchedule(pydantic.BaseModel):
     slots: List[AppointmentSlot]
 
     model_config = {"frozen": True}
+
+
+class Customer(pydantic.BaseModel):
+    name: Optional[str] = None
+    last_name: Optional[str] = None
+    doc_type: Optional[str] = None
+    doc_type_id: Optional[str] = None
+    doc_id: Optional[str] = None
+    email: Optional[str] = None
+    phone_numbers: Optional[Dict[str, Any]] = None
+
+    model_config = {"frozen": True}
+
+
+class CreatedTicket(pydantic.BaseModel):
+    ticket_name: str
+    ticket_id: str
+    video_call_id: Optional[str] = None
+    vc_jwt: Optional[str] = None
+
+    model_config = {"frozen": True}
+
+    def video_call_url(self, company_id: str, portal_base_url: str = "https://qanty.com/") -> Optional[str]:
+        if not self.video_call_id or not self.vc_jwt:
+            return None
+
+        portal_url = urljoin(portal_base_url.rstrip("/") + "/", "portals/tickets")
+        query = urlencode({"c": company_id, "v": self.video_call_id, "j": self.vc_jwt})
+        return f"{portal_url}?{query}"
 
 
 class AssignedAppointment(pydantic.BaseModel):

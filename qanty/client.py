@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import httpx
 from dateutil.parser import parse
@@ -19,13 +19,56 @@ USER_AGENT = "Qanty/%s Python/%s" % (VERSION, PYTHON_VERSION)
 
 
 class Client:
-    def __init__(self, auth_token: str, company_id: str) -> None:
+    def __init__(
+        self,
+        auth_token: str,
+        company_id: str,
+        endpoint: str = ENDPOINT,
+        portal_base_url: str = "https://qanty.com/",
+    ) -> None:
         headers = {"Authorization": auth_token}
         self.http_client = httpx.Client(http2=True, headers=headers)
         self.company_id = company_id
+        self.endpoint = endpoint.rstrip("/")
+        self.portal_base_url = portal_base_url
 
     def __del__(self) -> None:
         self.http_client.close()
+
+    def _url(self, path: str) -> str:
+        return f"{self.endpoint}/{path.lstrip('/')}"
+
+    def _post(self, path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        response = self.http_client.post(self._url(path), json=payload)
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            try:
+                data = exc.response.json()
+            except ValueError:
+                raise
+            if data.get("success") is False:
+                self._raise_api_error(data, payload)
+            raise
+
+        data = response.json()
+        if data.get("success") is False:
+            self._raise_api_error(data, payload)
+        return data
+
+    @staticmethod
+    def _raise_api_error(data: Dict[str, Any], payload: Dict[str, Any]) -> None:
+        code = data.get("code") or "API_ERROR"
+        msg = data.get("msg") or "Qanty API request failed"
+
+        if code == "BRANCH_NOT_FOUND":
+            raise exceptions.BranchNotFound(branch_id=payload.get("branch_id") or payload.get("custom_branch_id"))
+        if code == "INVALID_USER_IDENTIFIER":
+            raise exceptions.InvalidUserIdentifier(user_id=payload.get("user_id"))
+        if code == "USER_NOT_FOUND":
+            raise exceptions.UserNotFound(user_id=payload.get("user_id"))
+
+        raise exceptions.ApiError(code=code, msg=msg, payload=data)
 
     def get_branches(self, filters: Optional[dict] = None, get_deleted: Optional[bool] = False) -> Optional[List[models.Branch]]:
         """
@@ -35,7 +78,7 @@ class Client:
         :param get_deleted: Whether to include deleted branches in the list. Optional.
         :return: A list of Branch objects representing the branches for the company, or None if an error occurred.
         """
-        url = f"{ENDPOINT}/company/get_branches"
+        url = self._url("/company/get_branches")
         try:
             response = self.http_client.post(
                 url, json={"company_id": self.company_id, "filters": filters, "get_deleted": get_deleted}
@@ -64,7 +107,7 @@ class Client:
         Returns:
             Optional[List[models.Line]]: A list of Line objects representing the lines in the branch, or None if an error occurred.
         """
-        url = f"{ENDPOINT}/branches/get_lines"
+        url = self._url("/branches/get_lines")
         try:
             response = self.http_client.post(
                 url,
@@ -111,7 +154,7 @@ class Client:
         Returns:
             Optional[List[models.User]]: A list of User objects that match the provided filters.
         """
-        url = f"{ENDPOINT}/get_users"
+        url = self._url("/get_users")
         try:
             response = self.http_client.post(
                 url,
@@ -156,7 +199,7 @@ class Client:
         Returns:
             Optional[models.User]: A User object representing the user, or None if an error occurred.
         """
-        url = f"{ENDPOINT}/get_user"
+        url = self._url("/get_user")
         try:
             response = self.http_client.post(
                 url,
@@ -203,7 +246,7 @@ class Client:
         Returns:
             Optional[List[models.DaySchedule]]: A list of DaySchedule objects representing the appointments scheduled for the given branch and line on the given day, or None if an error occurred.
         """
-        url = f"{ENDPOINT}/appointments/list_day_schedule"
+        url = self._url("/appointments/list_day_schedule")
         try:
             response = self.http_client.post(
                 url,
@@ -278,7 +321,7 @@ class Client:
             Optional[models.AssignedAppointment]: An AssignedAppointment object if the appointment was made successfully, None otherwise.
         """
 
-        url = f"{ENDPOINT}/appointments/make_one"
+        url = self._url("/appointments/make_one")
         try:
             response = self.http_client.post(
                 url,
@@ -318,6 +361,64 @@ class Client:
             logger.error(f"Error validating assigned appointment: {exc}")
             return None
 
+    def create_ticket(
+        self,
+        branch_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        line_id: Optional[str] = None,
+        custom_branch_id: Optional[str] = None,
+        details: Optional[Any] = None,
+        mobile_id: Optional[str] = None,
+        mobile: Optional[Dict[str, Any]] = None,
+        customer_id: Optional[str] = None,
+        customer: Optional[models.Customer | Dict[str, Any]] = None,
+        customer_name: Optional[str] = None,
+        customer_last_name: Optional[str] = None,
+        customer_doc_type: Optional[str] = None,
+        customer_doc_type_id: Optional[str] = None,
+        customer_doc_id: Optional[str] = None,
+        tag_group_name: Optional[str] = None,
+        debug: bool = False,
+    ) -> models.CreatedTicket:
+        if not branch_id and not custom_branch_id:
+            raise ValueError("Either branch_id or custom_branch_id is required")
+        if not user_id:
+            raise ValueError("user_id is required")
+        if not line_id:
+            raise ValueError("line_id is required")
+
+        payload: Dict[str, Any] = {
+            "company_id": self.company_id,
+            "user_id": user_id,
+            "line_id": line_id,
+            "debug": debug,
+        }
+
+        optional_payload = {
+            "branch_id": branch_id,
+            "custom_branch_id": custom_branch_id,
+            "details": details,
+            "mobile_id": mobile_id,
+            "mobile": mobile,
+            "customer_id": customer_id,
+            "customer_name": customer_name,
+            "customer_last_name": customer_last_name,
+            "customer_doc_type": customer_doc_type,
+            "customer_doc_type_id": customer_doc_type_id,
+            "customer_doc_id": customer_doc_id,
+            "tag_group_name": tag_group_name,
+        }
+        payload.update({key: value for key, value in optional_payload.items() if value is not None})
+
+        if customer is not None:
+            if isinstance(customer, models.Customer):
+                payload["customer"] = customer.model_dump(exclude_none=True)
+            else:
+                payload["customer"] = {key: value for key, value in customer.items() if value is not None}
+
+        data = self._post("/create_ticket", payload)
+        return models.CreatedTicket.model_validate(data)
+
     def create_user(
         self,
         user_id: str,
@@ -352,7 +453,7 @@ class Client:
             Optional[str]: The ID of the newly created user, or None if the user could not be created.
         """
 
-        url = f"{ENDPOINT}/create_user"
+        url = self._url("/create_user")
         try:
             response = self.http_client.post(
                 url,
@@ -397,7 +498,7 @@ class Client:
         filters: Optional[List[str]] = None,
         get_deleted: Optional[bool] = False,
     ) -> Optional[List[models.UserRole]]:
-        url = f"{ENDPOINT}/get_roles"
+        url = self._url("/get_roles")
         try:
             response = self.http_client.post(
                 url,
